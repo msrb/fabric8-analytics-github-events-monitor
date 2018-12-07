@@ -30,7 +30,7 @@ class EventType(Enum):
         raise UnknownEvent
 
 
-class Event(object):
+class Event:
     """
     Event structure that contains only information relevant for our use case.
     Also performs type check.
@@ -38,6 +38,19 @@ class Event(object):
     def __init__(self):
         self.id = None
         self.type = None
+        self.repo = None
+
+    def __str__(self):
+        return "<Event id='{}', type='{}', repo='{}'>".format(self.id, self.type, self.repo)
+
+    def __eq__(self, other):
+        return (self.id, self.type, self.repo) == (other.id, other.type, other.repo)
+
+    def __hash__(self):
+        """
+        https://docs.python.org/3/reference/datamodel.html#object.__hash__
+        """
+        return hash((self.id, self.type, self.repo))
 
     @staticmethod
     def from_dict(input_dict):
@@ -51,6 +64,7 @@ class Event(object):
             ret.id = int(input_dict['id'])
             ret.type = EventType.from_str(input_dict['type'])
             ret.repo = input_dict['repo']['name']
+            logger.debug(str(ret))
             return ret
         except ValueError:
             logger.error('Integer conversion failed')
@@ -75,3 +89,16 @@ def test_event_parser_returns_event():
     assert isinstance(Event.from_dict(a), Event)
     assert Event.from_dict(b) is None
 
+
+def test_events_comparison():
+    e0 = Event()
+    e1 = Event()
+    assert e0 == e1
+    e0.repo = 'a'
+    assert not(e0 == e1)
+    e1.repo = 'a'
+    e0.id = 1
+    e1.id = 1
+    e0.type = EventType.PUSH
+    e1.type = EventType.PUSH
+    assert e0 == e1
