@@ -20,14 +20,15 @@ class EventType(Enum):
     @staticmethod
     def from_str(input_string):
         mapping = {
-            EventType.PUSH: ["PushEvent"],
-            EventType.PULL_REQUEST: ["PullRequestReviewCommentEvent", "PullRequestEvent"],
-            EventType.ISSUE: ["IssuesEvent"]
+            "PushEvent": EventType.PUSH,
+            "PullRequestReviewCommentEvent": EventType.PULL_REQUEST,
+            "PullRequestEvent": EventType.PULL_REQUEST,
+            "IssuesEvent": EventType.ISSUE,
         }
-        for k, v in mapping.items():
-            if input_string in v:
-                return k
-        raise UnknownEvent
+        try:
+            return mapping[input_string]
+        except KeyError:
+            raise UnknownEvent
 
 
 class Event:
@@ -80,6 +81,10 @@ def test_event_types_from_str():
     assert EventType.PUSH == EventType.from_str("PushEvent")
     assert EventType.ISSUE == EventType.from_str("IssuesEvent")
     assert EventType.PULL_REQUEST == EventType.from_str("PullRequestEvent")
+    try:
+        EventType.from_str("foobar")
+    except Exception as e:
+        assert isinstance(e, UnknownEvent)
 
 
 def test_event_parser_returns_event():
