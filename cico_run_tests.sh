@@ -1,5 +1,10 @@
 #!/bin/bash
 
-set -e
+set -ex
 
-pytest models.py monitor.py gopkg/translate.py
+here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
+#TODO: . ${here}/cico_setup.sh
+
+${here}/run-tests.sh
+
