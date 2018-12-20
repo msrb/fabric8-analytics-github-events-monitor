@@ -3,7 +3,7 @@ import json
 import requests
 import os
 
-from models import Event, EventType
+from ghmonitor.models import Event, EventType
 from time import sleep
 
 logger = logging.getLogger('Monitor')
@@ -35,7 +35,7 @@ def github_request(url):
     return None
 
 
-def repository_exists(name: str) -> bool:
+def repository_exists(name):
     """
     Just check if the repository exists. Return false in case of any error (repo does not exist,
     communication failed etc.)
@@ -132,9 +132,9 @@ if __name__ == "__main__":
         sleep(SLEEP_PERIOD)
 
 
-def test_repo_exists():
-    """
-    Check the function using some well known repo, be careful though. This test
-    may fail without Internet connection, rate limiting etc.
-    """
-    assert repository_exists('rust-lang/rust')
+# def test_repo_exists():
+#     """
+#     Check the function using some well known repo, be careful though. This test
+#     may fail without Internet connection, rate limiting etc.
+#     """
+#     assert repository_exists('rust-lang/rust')
