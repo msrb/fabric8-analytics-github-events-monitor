@@ -35,7 +35,7 @@ def github_request(url):
     return None
 
 
-def repository_exists(name: str) -> bool:
+def repository_exists(name):
     """
     Just check if the repository exists. Return false in case of any error (repo does not exist,
     communication failed etc.)
