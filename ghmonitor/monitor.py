@@ -3,7 +3,7 @@ import json
 import requests
 import os
 
-from models import Event, EventType
+from ghmonitor.models import Event, EventType
 from time import sleep
 
 logger = logging.getLogger('Monitor')
