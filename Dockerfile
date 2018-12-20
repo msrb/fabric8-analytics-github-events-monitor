@@ -17,6 +17,6 @@ WORKDIR ${APP_DIR}
 COPY . .
 
 # Run!
-CMD ["python3.6", "monitor.py"]
+CMD ["python3.6", "ghmonitor/monitor.py"]
 
 
