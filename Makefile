@@ -1,8 +1,8 @@
 run:
-	LOGLEVEL=INFO python3 monitor.py
+	LOGLEVEL=INFO python3 ghmonitor/monitor.py
 
 test:
-	pytest --show-capture=stdout *.py 
+	pytest ghmonitor/
 
 get-testing-data:
 	curl https://api.github.com/events > events.json

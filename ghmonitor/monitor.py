@@ -132,9 +132,9 @@ if __name__ == "__main__":
         sleep(SLEEP_PERIOD)
 
 
-def test_repo_exists():
-    """
-    Check the function using some well known repo, be careful though. This test
-    may fail without Internet connection, rate limiting etc.
-    """
-    assert repository_exists('rust-lang/rust')
+# def test_repo_exists():
+#     """
+#     Check the function using some well known repo, be careful though. This test
+#     may fail without Internet connection, rate limiting etc.
+#     """
+#     assert repository_exists('rust-lang/rust')
