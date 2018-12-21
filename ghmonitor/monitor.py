@@ -4,7 +4,6 @@ import requests
 import os
 
 from ghmonitor.models import Event, EventType
-from time import sleep
 
 logger = logging.getLogger('Monitor')
 auth_header = None
@@ -77,8 +76,7 @@ class RepositoryMonitor:
         else:
             logger.error('Failed to get new events for {} repository (status code != 200)'
                          .format(self.name))
-
-        return None
+            return None
 
     def _new_events_in_set(self, filtering_predicate, new_events):
         old = set(filter(filtering_predicate, self.seen_events))
@@ -99,37 +97,6 @@ class RepositoryMonitor:
 
     def __str__(self):
         return '<{} for {} repository>'.format(self.__class__.__name__, self.name)
-
-
-if __name__ == "__main__":
-    # Set up logging
-    LOGLEVEL = os.environ.get('LOGLEVEL', 'WARNING').upper()
-    logging.basicConfig(level=LOGLEVEL)
-    logger.info("Starting the monitor service")
-
-    # In seconds
-    SLEEP_PERIOD = float(os.environ.get('SLEEP_PERIOD', 30))
-
-    # Set up list of repositories
-    auth_header = get_auth_header()
-    repos = list(filter(repository_exists, get_list_of_repos()))
-    monitors = list(map(lambda x: RepositoryMonitor(x), repos))
-    logger.info('Monitoring these repositories:')
-    for m in monitors:
-        logger.info(str(m))
-
-    while True:
-        # Run the monitor forever
-        for m in monitors:
-            new_events = m.get_new_events()
-            if m.new_issues(new_events):
-                logger.info('There are new issues for ' + m.name)
-            if m.new_commits(new_events):
-                logger.info('There are new commits for ' + m.name)
-            if m.new_pull_requests(new_events):
-                logger.info('There are new pull requests for ' + m.name)
-            m.seen_events = new_events
-        sleep(SLEEP_PERIOD)
 
 
 # def test_repo_exists():
