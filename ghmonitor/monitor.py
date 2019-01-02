@@ -34,6 +34,16 @@ def test_get_list_of_repos():
     assert get_list_of_repos() == ['a/b', 'c/d']
 
 
+def get_list_of_packages():
+    repos = os.environ.get('WATCH_PACKAGES', '')
+    return repos.split(' ')
+
+
+def test_get_list_of_packages():
+    os.environ['WATCH_PACKAGES'] = 'a/b c/d'
+    assert get_list_of_repos() == ['a/b', 'c/d']
+
+
 def github_request(url):
     try:
         r = requests.get(url, headers=auth_header)
@@ -77,8 +87,9 @@ def repository_exists(name):
 
 
 class RepositoryMonitor:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, package, repository):
+        self.name = repository
+        self.package = package
         self.seen_events = set()
         self.new_events = set()
 
