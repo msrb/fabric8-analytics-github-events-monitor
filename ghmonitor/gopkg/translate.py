@@ -53,6 +53,8 @@ def translate(pkg):
 
 def test_get_repo_urn():
     assert 'kubernetes/metrics' == get_repo_from_random_urn('k8s.io/metrics')
+    assert get_repo_from_random_urn('seznam.cz') is None
+
 
 def test_github_re():
     assert GITHUB_REPO_RE.match('bitbucket.com/user/repo') is None
