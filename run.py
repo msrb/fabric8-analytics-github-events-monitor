@@ -3,8 +3,10 @@ import os
 from time import sleep
 
 
-from ghmonitor.monitor import get_auth_header, repository_exists, get_list_of_repos
+from ghmonitor.monitor import get_auth_header, repository_exists, get_list_of_repos, \
+    get_list_of_packages
 from ghmonitor.monitor import RepositoryMonitor
+from ghmonitor.gopkg.translate import translate
 from ghmonitor.backend import LoggerBackend
 
 
@@ -22,8 +24,10 @@ if __name__ == "__main__":
 
     # Set up list of repositories
     auth_header = get_auth_header()
-    repos = list(filter(repository_exists, get_list_of_repos()))
-    monitors = list(map(lambda x: RepositoryMonitor(x), repos))
+    packages = get_list_of_packages()
+    repos = list(filter(lambda y: y[1] is not None, map(lambda x: (x, translate(x)), packages)))
+    repos = list(filter(lambda x: repository_exists(x[1]), repos))
+    monitors = list(map(lambda x: RepositoryMonitor(*x), repos))
     logger.info('Monitoring these repositories:')
     for m in monitors:
         logger.info(str(m))
