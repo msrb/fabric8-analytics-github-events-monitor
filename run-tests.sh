@@ -39,4 +39,4 @@ pip install -r requirements.txt
 pip install pytest pytest-cov
 
 # run tests
-pytest --cov="ghmonitor/" --cov-report term-missing --cov-fail-under=$COVERAGE_THRESHOLD -vv ghmonitor/ $@
+pytest --cov="ghmonitor/" --cov="tests/" --cov-report term-missing --cov-fail-under=$COVERAGE_THRESHOLD -vv ghmonitor/ tests/ $@
