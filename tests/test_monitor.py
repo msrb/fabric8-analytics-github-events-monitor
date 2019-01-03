@@ -1,5 +1,9 @@
 import json
 
+from unittest import mock
+
+from ghmonitor import monitor
+
 GITHUB_GET_REPOS_RESPONSE = """
 {
   "id": 724712,
@@ -130,7 +134,7 @@ GITHUB_GET_REPOS_RESPONSE = """
 """
 
 
-def mock_github_request(url):
+def mocked_github_request(url, **kwargs):
     if url.startswith('https://api.github.com/'):
         if '/repos/' in url and '/rust-lang/rust' in url:
             return 200, json.loads(GITHUB_GET_REPOS_RESPONSE)
@@ -142,3 +146,9 @@ def mock_github_request(url):
             return None
     else:
         return None
+
+
+@mock.patch('ghmonitor.monitor.github_request', side_effect=mocked_github_request)
+def test_repository_exists(github_request_function):
+    assert monitor.repository_exists('rust-lang/rust') is True
+    assert monitor.repository_exists('msehnout/go-lang-is-awesome') is False

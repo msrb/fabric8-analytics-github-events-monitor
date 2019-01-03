@@ -4,7 +4,6 @@ import requests
 import os
 
 from ghmonitor.models import Event, EventType
-from ghmonitor.tests.github import mock_github_request
 
 logger = logging.getLogger('Monitor')
 auth_header = None
@@ -45,10 +44,7 @@ def test_get_list_of_packages():
     assert get_list_of_repos() == ['a/b', 'c/d']
 
 
-def github_request(url, mock=False):
-    if mock:
-        return mock_github_request(url)
-
+def github_request(url):
     try:
         r = requests.get(url, headers=auth_header)
         body = r.json()
@@ -66,12 +62,12 @@ def test_github_request():
     assert github_request('https://github.com/') is None
 
 
-def repository_exists(name, mock=False):
+def repository_exists(name):
     """
     Just check if the repository exists. Return false in case of any error (repo does not exist,
     communication failed etc.)
     """
-    r = github_request('https://api.github.com/repos/' + name, mock)
+    r = github_request('https://api.github.com/repos/' + name)
     if r is None:
         return False
 
@@ -164,12 +160,3 @@ def test_new_issues():
     assert m.new_commits(new_events)
     assert m.new_issues(new_events)
     assert m.new_pull_requests(new_events)
-
-
-def test_repo_exists():
-    """
-    Check the function using some well known repo, be careful though. This test
-    may fail without Internet connection, rate limiting etc.
-    """
-    assert repository_exists('rust-lang/rust', mock=True) is True
-    assert repository_exists('msehnout/go-lang-is-awesome') is False
