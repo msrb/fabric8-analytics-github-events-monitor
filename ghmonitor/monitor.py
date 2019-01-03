@@ -110,7 +110,7 @@ class RepositoryMonitor:
     def _new_events_in_set(self, filtering_predicate, new_events):
         old = set(filter(filtering_predicate, self.seen_events))
         new = set(filter(filtering_predicate, new_events))
-        return len(new - old) > 0
+        return new - old
 
     def new_issues(self, events):
         p = lambda x: x.type == EventType.ISSUE
@@ -129,7 +129,7 @@ class RepositoryMonitor:
 
 
 def test_new_issues():
-    m = RepositoryMonitor('a')
+    m = RepositoryMonitor('a', 'b')
     i1 = Event()
     i1.type = EventType.ISSUE
     i2 = Event()
@@ -147,14 +147,14 @@ def test_new_issues():
     p2.type = EventType.PULL_REQUEST
     m.seen_events = set()
     new_events = set()
-    assert m.new_commits(new_events) is False
-    assert m.new_issues(new_events) is False
-    assert m.new_pull_requests(new_events) is False
+    assert m.new_commits(new_events) == set()
+    assert m.new_issues(new_events) == set()
+    assert m.new_pull_requests(new_events) == set()
     m.seen_events = {i1, c1, p1}
     new_events = {i1, c1, p1}
-    assert m.new_commits(new_events) is False
-    assert m.new_issues(new_events) is False
-    assert m.new_pull_requests(new_events) is False
+    assert m.new_commits(new_events) == set()
+    assert m.new_issues(new_events) == set()
+    assert m.new_pull_requests(new_events) == set()
     m.seen_events = {i1, c1, p1}
     new_events = {i1, c1, p1, i2, c2, p2}
     assert m.new_commits(new_events)
