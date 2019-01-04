@@ -1,6 +1,8 @@
 #!/bin/bash
 
-separate_files="models.py monitor.py"
+directories="ghmonitor"
+separate_files="run.py"
+
 pass=0
 fail=0
 
@@ -14,7 +16,34 @@ function prepare_venv() {
     ${VIRTUALENV} -p python3 venv && source venv/bin/activate && python3 "$(which pip3)" install pycodestyle
 }
 
+echo "----------------------------------------------------"
+echo "Running Python linter against following directories:"
+echo "$directories"
+echo "----------------------------------------------------"
+echo
+
 [ "$NOVENV" == "1" ] || prepare_venv || exit 1
+
+# checks for the whole directories
+for directory in $directories
+do
+    files=$(find "$directory" -path "$directory/venv" -prune -o -name '*.py' -print)
+
+    for source in $files
+    do
+        echo "$source"
+        pycodestyle "$source"
+        if [ $? -eq 0 ]
+        then
+            echo "    Pass"
+            let "pass++"
+        else
+            echo "    Fail"
+            let "fail++"
+        fi
+    done
+done
+
 
 echo
 echo "----------------------------------------------------"

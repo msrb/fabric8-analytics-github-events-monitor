@@ -1,6 +1,7 @@
 #!/bin/bash
 
-separate_files="models.py monitor.py"
+directories="ghmonitor"
+separate_files="run.py"
 
 pass=0
 fail=0
@@ -36,7 +37,23 @@ function check_files() {
     done
 }
 
+
+echo "----------------------------------------------------"
+echo "Checking source files for dead code and unused imports"
+echo "in following directories:"
+echo "$directories"
+echo "----------------------------------------------------"
+echo
+
 [ "$NOVENV" == "1" ] || prepare_venv || exit 1
+
+# checks for the whole directories
+for directory in $directories
+do
+    files=$(find "$directory" -path "$directory/venv" -prune -o -name '*.py' -print)
+
+    check_files "$files"
+done
 
 echo "----------------------------------------------------"
 echo "Checking following source files for dead code and"

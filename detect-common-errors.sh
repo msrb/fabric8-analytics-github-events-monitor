@@ -1,6 +1,7 @@
 #!/bin/bash
 
-separate_files="models.py monitor.py"
+directories="ghmonitor"
+separate_files="run.py"
 
 pass=0
 fail=0
@@ -37,6 +38,21 @@ function check_files() {
 }
 
 [ "$NOVENV" == "1" ] || prepare_venv || exit 1
+
+echo "----------------------------------------------------"
+echo "Checking source files for common errors in following"
+echo "directories:"
+echo "$directories"
+echo "----------------------------------------------------"
+echo
+
+# checks for the whole directories
+for directory in $directories
+do
+    files=$(find "$directory" -path "$directory/venv" -prune -o -name '*.py' -print)
+
+    check_files "$files"
+done
 
 echo "----------------------------------------------------"
 echo "Checking following source files for common errors:"
