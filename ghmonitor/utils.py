@@ -1,4 +1,5 @@
-from ghmonitor.backend import LoggerBackend, create_pr_notification, create_push_notification
+from ghmonitor.backend import create_pr_notification, create_push_notification, \
+    create_issue_notification
 from ghmonitor.gopkg.translate import translate
 from ghmonitor.monitor import repository_exists, get_list_of_packages
 from ghmonitor.monitor import RepositoryMonitor
@@ -21,7 +22,7 @@ def process_new_events(monitor, backend):
     new_issues = monitor.new_issues(new_events)
     if new_issues != set():
         for issue in new_issues:
-            backend.notify(create_pr_notification(monitor.package, monitor.name, issue.id))
+            backend.notify(create_issue_notification(monitor.package, monitor.name, issue.id))
 
     new_commits = monitor.new_commits(new_events)
     if new_commits != set():
