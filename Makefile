@@ -2,7 +2,7 @@ run:
 	LOGLEVEL="INFO" GITHUB_TOKEN="${GITHUB_TOKEN}" SLEEP_PERIOD=2 WATCH_REPOS="msehnout/ipc_example" python3 run.py
 
 test:
-	pytest ghmonitor/
+	bash run-tests.sh
 
 get-testing-data:
 	curl https://api.github.com/events > events.json
