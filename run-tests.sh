@@ -34,6 +34,7 @@ function prepare_venv() {
 
 # install the project
 pip install -r requirements.txt
+pip install git+https://github.com/fabric8-analytics/fabric8-analytics-worker.git@561636c
 
 # ensure pytest and coverage is available
 pip install pytest pytest-cov
