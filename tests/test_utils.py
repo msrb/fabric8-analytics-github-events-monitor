@@ -48,7 +48,14 @@ def mocked_get_new_events():
     i1.type = EventType.ISSUE
     i1.id = 5
 
-    return {i1}
+    i2 = Event()
+    i2.type = EventType.PULL_REQUEST
+    i2.id = 6
+
+    i3 = Event()
+    i3.type = EventType.PUSH
+
+    return {i1, i2, i3}
 
 
 EXPECTED_ISSUE_NOTIFICATION = """
@@ -60,6 +67,23 @@ EXPECTED_ISSUE_NOTIFICATION = """
 }
 """
 
+EXPECTED_PR_NOTIFICATION = """
+{
+        "repository": "kubernetes/metrics",
+        "package": "k8s.io/metrics",
+        "event": "pull-request",
+        "id": 6
+}
+"""
+
+EXPECTED_PUSH_NOTIFICATION = """
+{
+        "repository": "kubernetes/metrics",
+        "package": "k8s.io/metrics",
+        "event": "push"
+}
+"""
+
 
 @mock.patch('ghmonitor.monitor.RepositoryMonitor.get_new_events', side_effect=mocked_get_new_events)
 def test_process_new_events(get_new_events):
@@ -67,7 +91,20 @@ def test_process_new_events(get_new_events):
     monitor.seen_events = set()
     backend = MockBackend()
     process_new_events(monitor, backend)
+    # There are new notifications
     assert len(backend.notifications) > 0
+
+    # Issue notification
     issue_notification = json.loads(backend.notifications[0])
     expected_notification = json.loads(EXPECTED_ISSUE_NOTIFICATION)
     assert issue_notification == expected_notification
+
+    # Push notification
+    push_notification = json.loads(backend.notifications[1])
+    expected_notification = json.loads(EXPECTED_PUSH_NOTIFICATION)
+    assert push_notification == expected_notification
+
+    # PR notification
+    pr_notification = json.loads(backend.notifications[2])
+    expected_notification = json.loads(EXPECTED_PR_NOTIFICATION)
+    assert pr_notification == expected_notification
