@@ -9,13 +9,22 @@ logger = logging.getLogger('Monitor')
 
 
 class Backend(ABC):
+    """
+    An abstract class, that defines interface for any backend implementation. The backend is
+    used for sending notifications regarding new events in the repositories, that we monitor.
+    """
 
     @abstractmethod
     def notify(self, notification_string):
+        # type: (str) -> None
         pass
 
 
 class LoggerBackend(Backend):
+    """
+    Simple backend, that will use the logger for sending notifications. Useful mainly for
+    local development and testing.
+    """
 
     def __init__(self):
         logger.info('Using logger backend')
@@ -28,6 +37,9 @@ SELINON_FLOW_NAME = 'golangCVEPredictionsFlow'
 
 
 class SelinonBackend(Backend):
+    """
+    Production backend that is connected to Selinon(Celery(SQS@AWS))
+    """
 
     def __init__(self):
         pass
@@ -38,6 +50,7 @@ class SelinonBackend(Backend):
 
 
 def create_pr_notification(package, repository, id):
+    # type: (str, str, int) -> str
     notification_dict = {
         "repository": repository,
         "package": package,
@@ -48,6 +61,7 @@ def create_pr_notification(package, repository, id):
 
 
 def create_issue_notification(package, repository, id):
+    # type: (str, str, int) -> str
     notification_dict = {
         "repository": repository,
         "package": package,
@@ -58,6 +72,7 @@ def create_issue_notification(package, repository, id):
 
 
 def create_push_notification(package, repository):
+    # type: (str, str) -> str
     notification_dict = {
         "repository": repository,
         "package": package,

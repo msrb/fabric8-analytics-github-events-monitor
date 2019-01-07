@@ -4,7 +4,7 @@ import os
 from time import sleep
 
 from ghmonitor.monitor import get_auth_header
-from ghmonitor.backend import LoggerBackend, create_pr_notification, create_push_notification
+from ghmonitor.backend import LoggerBackend
 from ghmonitor.utils import create_monitors, process_new_events
 
 
@@ -34,6 +34,6 @@ if __name__ == "__main__":
     while True:
         # Run the monitor forever
         for m in monitors:
-            process_new_events(monitors, backend)
+            process_new_events(m, backend)
 
         sleep(SLEEP_PERIOD)

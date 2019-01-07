@@ -6,12 +6,15 @@ logger = logging.getLogger('Monitor')
 
 
 class UnknownEvent(Exception):
+    """
+    Exception for unknown event strings.
+    """
     pass
 
 
 class EventType(Enum):
     """
-    Represent event types that we are interested in like new pull requests, issues, or comments
+    Represent event types that we are interested in like new pull requests, issues, or comments.
     """
     PUSH = 1
     PULL_REQUEST = 2
@@ -19,6 +22,7 @@ class EventType(Enum):
 
     @staticmethod
     def from_str(input_string):
+        # type: (str) -> EventType
         mapping = {
             "PushEvent": EventType.PUSH,
             "PullRequestReviewCommentEvent": EventType.PULL_REQUEST,

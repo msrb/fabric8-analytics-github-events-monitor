@@ -5,11 +5,19 @@ import os
 
 from ghmonitor.models import Event, EventType
 
+# for type hints:
+from typing import List, Set, Union, Callable, Dict, Tuple
+
 logger = logging.getLogger('Monitor')
 auth_header = None
 
 
 def get_auth_header():
+    # type: () -> Union[Dict[str, str], None]
+    """
+    Return dictionary for use with requests library. The dictionary contains authorization
+    token for Github API.
+    """
     token = os.environ.get('GITHUB_TOKEN')
     if token is not None:
         return {'Authorization': 'token ' + token}
@@ -25,6 +33,10 @@ def test_get_auth_header():
 
 
 def get_list_of_repos():
+    # type: () -> List[str]
+    """
+    Read a list of repositories from the WATCH_REPOS environment variable.
+    """
     repos = os.environ.get('WATCH_REPOS', '')
     return repos.split(' ')
 
@@ -35,6 +47,10 @@ def test_get_list_of_repos():
 
 
 def get_list_of_packages():
+    # type: () -> List[str]
+    """
+    Read a list of Go packages from the WATCH_PACKAGES environment variable.
+    """
     repos = os.environ.get('WATCH_PACKAGES', '')
     return repos.split(' ')
 
@@ -45,6 +61,11 @@ def test_get_list_of_packages():
 
 
 def github_request(url):
+    # type: (str) -> Union[Tuple[int, Dict[str, str]], None]
+    """
+    Send a request to the Github API. Return a tuple with status code and message body as
+    a dictionary or None in case of any failure.
+    """
     try:
         r = requests.get(url, headers=auth_header)
         body = r.json()
@@ -63,6 +84,7 @@ def test_github_request():
 
 
 def repository_exists(name):
+    # type: (str) -> bool
     """
     Just check if the repository exists. Return false in case of any error (repo does not exist,
     communication failed etc.)
@@ -87,13 +109,19 @@ def repository_exists(name):
 
 
 class RepositoryMonitor:
+    """
+    Encapsulate Github repository and events, that has already been seen for it.
+    """
+
     def __init__(self, package, repository):
+        # type: (str, str) -> RepositoryMonitor
         self.name = repository
         self.package = package
         self.seen_events = set()
         self.new_events = set()
 
     def get_new_events(self):
+        # type: () -> Union[Set[Event], None]
         r = github_request('https://api.github.com/repos/' + self.name + '/events')
         if r is None:
             logger.error('Failed to get new events for {} repository (communication error)'
@@ -108,19 +136,23 @@ class RepositoryMonitor:
             return None
 
     def _new_events_in_set(self, filtering_predicate, new_events):
+        # type: (Callable[[Event], bool], Set[Event]) -> Set[Event]
         old = set(filter(filtering_predicate, self.seen_events))
         new = set(filter(filtering_predicate, new_events))
         return new - old
 
     def new_issues(self, events):
+        # type: (Set[Event]) -> Set[Event]
         p = lambda x: x.type == EventType.ISSUE
         return self._new_events_in_set(p, events)
 
     def new_commits(self, events):
+        # type: (Set[Event]) -> Set[Event]
         p = lambda x: x.type == EventType.PUSH
         return self._new_events_in_set(p, events)
 
     def new_pull_requests(self, events):
+        # type: (Set[Event]) -> Set[Event]
         p = lambda x: x.type == EventType.PULL_REQUEST
         return self._new_events_in_set(p, events)
 
