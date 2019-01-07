@@ -4,8 +4,18 @@ from ghmonitor.gopkg.translate import translate
 from ghmonitor.monitor import repository_exists, get_list_of_packages
 from ghmonitor.monitor import RepositoryMonitor
 
+# For type hints:
+from ghmonitor.backend import Backend
+from typing import List
+
 
 def create_monitors():
+    # type: () -> List[RepositoryMonitor]
+    """
+    Read Go package names from the environment, translate the names to Github repositories and
+    create monitors that encapsulate them.
+    :return: List of monitors
+    """
     packages = get_list_of_packages()
     repos = list(filter(lambda y: y[1] is not None, map(lambda x: (x, translate(x)), packages)))
     repos = list(filter(lambda x: repository_exists(x[1]), repos))
@@ -15,6 +25,10 @@ def create_monitors():
 
 
 def process_new_events(monitor, backend):
+    # type: (RepositoryMonitor, Backend) -> None
+    """
+    Try to fetch new events for the monitor, send notifications to the backend.
+    """
     new_events = monitor.get_new_events()
     if new_events is None:
         return

@@ -4,8 +4,15 @@ from requests_html import HTMLSession
 GITHUB_REPO_RE = re.compile(r"github.com/(?P<user>[a-zA-Z0-9][ A-Za-z0-9_-]*)"
                             r"/(?P<repo>[a-zA-Z0-9][ A-Za-z0-9_-]*)")
 
+from typing import Union
+
 
 def get_repo_from_random_urn(urn):
+    # type: (str) -> Union[str, None]
+    """
+    In case the repository is not directly from GitHub, it is possible that there is a way to
+    translate the urn into Github repository using some magic from "go get". So just try it.
+    """
     session = HTMLSession()
     resp = session.get('https://' + urn + '?go-get=1')
     # Check that the request was successful
@@ -34,8 +41,9 @@ def get_repo_from_random_urn(urn):
 
 
 def translate(pkg):
+    # type: (str) -> Union[str, None]
     """
-    Takes whatever `go get` takes and return string with organization/user and repository name.
+    Take whatever `go get` takes and return string with organization/user and repository name.
     It returns none for anything that is not available on Github.
     """
     # Test if the pkg is directly from github
