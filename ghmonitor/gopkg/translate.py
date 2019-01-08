@@ -51,6 +51,9 @@ def translate(pkg):
 
     It returns none for anything that is not available on Github.
     """
+    if pkg == "":
+        return None
+
     # Test if the pkg is directly from github
     m = GITHUB_REPO_RE.match(pkg)
     if m is not None:
