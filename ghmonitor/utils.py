@@ -1,3 +1,5 @@
+"""Utility functions for the run.py script."""
+
 from ghmonitor.backend import create_pr_notification, create_push_notification, \
     create_issue_notification
 from ghmonitor.gopkg.translate import translate
@@ -12,6 +14,8 @@ from typing import List
 def create_monitors():
     # type: () -> List[RepositoryMonitor]
     """
+    Create monitors for this service.
+
     Read Go package names from the environment, translate the names to Github repositories and
     create monitors that encapsulate them.
     :return: List of monitors
@@ -26,9 +30,7 @@ def create_monitors():
 
 def process_new_events(monitor, backend):
     # type: (RepositoryMonitor, Backend) -> None
-    """
-    Try to fetch new events for the monitor, send notifications to the backend.
-    """
+    """Try to fetch new events for the monitor, send notifications to the backend."""
     new_events = monitor.get_new_events()
     if new_events is None:
         return

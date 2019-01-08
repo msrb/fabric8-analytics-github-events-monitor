@@ -1,8 +1,10 @@
 import json
+import os
 
 from unittest import mock
 
 from ghmonitor import monitor
+from ghmonitor.models import *
 
 GITHUB_GET_REPOS_RESPONSE = """
 {
@@ -283,3 +285,60 @@ def mocked_github_request(url, **kwargs):
 def test_repository_exists(github_request_function):
     assert monitor.repository_exists('rust-lang/rust') is True
     assert monitor.repository_exists('msehnout/go-lang-is-awesome') is False
+
+
+def test_get_auth_header():
+    os.environ['GITHUB_TOKEN'] = '123'
+    assert monitor.get_auth_header() == {'Authorization': 'token 123'}
+    os.environ.pop('GITHUB_TOKEN')
+    assert monitor.get_auth_header() is None
+
+
+def test_get_list_of_repos():
+    os.environ['WATCH_REPOS'] = 'a/b c/d'
+    assert monitor.get_list_of_repos() == ['a/b', 'c/d']
+
+
+def test_get_list_of_packages():
+    os.environ['WATCH_PACKAGES'] = 'a/b c/d'
+    assert monitor.get_list_of_repos() == ['a/b', 'c/d']
+
+
+def test_github_request():
+    assert monitor.github_request('https://api.github.com/') is not None
+    assert monitor.github_request('https://tramtadadaneexistujicidomena.redhat.com/') is None
+    assert monitor.github_request('https://github.com/') is None
+
+
+def test_new_issues():
+    m = monitor.RepositoryMonitor('a', 'b')
+    i1 = Event()
+    i1.type = EventType.ISSUE
+    i2 = Event()
+    i2.id = 1
+    i2.type = EventType.ISSUE
+    c1 = Event()
+    c1.type = EventType.PUSH
+    c2 = Event()
+    c2.id = 1
+    c2.type = EventType.PUSH
+    p1 = Event()
+    p1.type = EventType.PULL_REQUEST
+    p2 = Event()
+    p2.id = 1
+    p2.type = EventType.PULL_REQUEST
+    m.seen_events = set()
+    new_events = set()
+    assert m.new_commits(new_events) == set()
+    assert m.new_issues(new_events) == set()
+    assert m.new_pull_requests(new_events) == set()
+    m.seen_events = {i1, c1, p1}
+    new_events = {i1, c1, p1}
+    assert m.new_commits(new_events) == set()
+    assert m.new_issues(new_events) == set()
+    assert m.new_pull_requests(new_events) == set()
+    m.seen_events = {i1, c1, p1}
+    new_events = {i1, c1, p1, i2, c2, p2}
+    assert m.new_commits(new_events)
+    assert m.new_issues(new_events)
+    assert m.new_pull_requests(new_events)

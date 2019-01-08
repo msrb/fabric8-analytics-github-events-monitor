@@ -1,1 +1,1 @@
-"""Github monitoring service"""
+"""Github monitoring service."""
