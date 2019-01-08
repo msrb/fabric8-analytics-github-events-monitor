@@ -17,4 +17,4 @@ coverage:
 	pytest --cov="ghmonitor/" --cov-report html:/tmp/cov_report -vv ghmonitor/
 
 deps:
-    pip-compile --output-file requirements.txt requirements.in
+	pip-compile --output-file requirements.txt requirements.in
