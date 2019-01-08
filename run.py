@@ -1,3 +1,5 @@
+"""Entry point for the service."""
+
 import logging
 import os
 

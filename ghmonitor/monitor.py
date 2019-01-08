@@ -1,3 +1,5 @@
+"""Monitor is an object that tracks activity in a Github repository."""
+
 import logging
 import json
 import requests
@@ -6,7 +8,7 @@ import os
 from ghmonitor.models import Event, EventType
 
 # for type hints:
-from typing import List, Set, Union, Callable, Dict, Tuple
+from typing import List, Set, Union, Callable, Dict, Tuple # pylint:disable=W0611
 
 logger = logging.getLogger('Monitor')
 auth_header = None
@@ -15,8 +17,9 @@ auth_header = None
 def get_auth_header():
     # type: () -> Union[Dict[str, str], None]
     """
-    Return dictionary for use with requests library. The dictionary contains authorization
-    token for Github API.
+    Return dictionary for use with requests library.
+
+    The dictionary contains authorization token for Github API.
     """
     token = os.environ.get('GITHUB_TOKEN')
     if token is not None:
@@ -25,46 +28,26 @@ def get_auth_header():
         return None
 
 
-def test_get_auth_header():
-    os.environ['GITHUB_TOKEN'] = '123'
-    assert get_auth_header() == {'Authorization': 'token 123'}
-    os.environ.pop('GITHUB_TOKEN')
-    assert get_auth_header() is None
-
-
 def get_list_of_repos():
     # type: () -> List[str]
-    """
-    Read a list of repositories from the WATCH_REPOS environment variable.
-    """
+    """Read a list of repositories from the WATCH_REPOS environment variable."""
     repos = os.environ.get('WATCH_REPOS', '')
     return repos.split(' ')
 
 
-def test_get_list_of_repos():
-    os.environ['WATCH_REPOS'] = 'a/b c/d'
-    assert get_list_of_repos() == ['a/b', 'c/d']
-
-
 def get_list_of_packages():
     # type: () -> List[str]
-    """
-    Read a list of Go packages from the WATCH_PACKAGES environment variable.
-    """
+    """Read a list of Go packages from the WATCH_PACKAGES environment variable."""
     repos = os.environ.get('WATCH_PACKAGES', '')
     return repos.split(' ')
-
-
-def test_get_list_of_packages():
-    os.environ['WATCH_PACKAGES'] = 'a/b c/d'
-    assert get_list_of_repos() == ['a/b', 'c/d']
 
 
 def github_request(url):
     # type: (str) -> Union[Tuple[int, Dict[str, str]], None]
     """
-    Send a request to the Github API. Return a tuple with status code and message body as
-    a dictionary or None in case of any failure.
+    Send a request to the Github API.
+
+    Return a tuple with status code and message body as a dictionary or None in case of any failure.
     """
     try:
         r = requests.get(url, headers=auth_header)
@@ -77,17 +60,12 @@ def github_request(url):
     return None
 
 
-def test_github_request():
-    assert github_request('https://api.github.com/') is not None
-    assert github_request('https://tramtadadaneexistujicidomena.redhat.com/') is None
-    assert github_request('https://github.com/') is None
-
-
 def repository_exists(name):
     # type: (str) -> bool
     """
-    Just check if the repository exists. Return false in case of any error (repo does not exist,
-    communication failed etc.)
+    Just check if the repository exists.
+
+    Return false in case of any error (repo does not exist, communication failed etc.)
     """
     r = github_request('https://api.github.com/repos/' + name)
     if r is None:
@@ -109,12 +87,11 @@ def repository_exists(name):
 
 
 class RepositoryMonitor:
-    """
-    Encapsulate Github repository and events, that has already been seen for it.
-    """
+    """Encapsulate Github repository and events, that has already been seen for it."""
 
     def __init__(self, package, repository):
         # type: (str, str) -> RepositoryMonitor
+        """Create new monitor for given package and associated repository."""
         self.name = repository
         self.package = package
         self.seen_events = set()
@@ -122,6 +99,7 @@ class RepositoryMonitor:
 
     def get_new_events(self):
         # type: () -> Union[Set[Event], None]
+        """Fetch new events from Github API and return them as a set."""
         r = github_request('https://api.github.com/repos/' + self.name + '/events')
         if r is None:
             logger.error('Failed to get new events for {} repository (communication error)'
@@ -143,52 +121,26 @@ class RepositoryMonitor:
 
     def new_issues(self, events):
         # type: (Set[Event]) -> Set[Event]
-        p = lambda x: x.type == EventType.ISSUE
+        """Return a set of new issue events."""
+        def p(x):
+            return x.type == EventType.ISSUE
+
         return self._new_events_in_set(p, events)
 
     def new_commits(self, events):
         # type: (Set[Event]) -> Set[Event]
-        p = lambda x: x.type == EventType.PUSH
+        """Return a set of new push events."""
+        def p(x):
+            return x.type == EventType.PUSH
         return self._new_events_in_set(p, events)
 
     def new_pull_requests(self, events):
         # type: (Set[Event]) -> Set[Event]
-        p = lambda x: x.type == EventType.PULL_REQUEST
+        """Return a set of new pull-request events."""
+        def p(x):
+            return x.type == EventType.PULL_REQUEST
         return self._new_events_in_set(p, events)
 
     def __str__(self):
+        """Pretty print."""
         return '<{} for {} repository>'.format(self.__class__.__name__, self.name)
-
-
-def test_new_issues():
-    m = RepositoryMonitor('a', 'b')
-    i1 = Event()
-    i1.type = EventType.ISSUE
-    i2 = Event()
-    i2.id = 1
-    i2.type = EventType.ISSUE
-    c1 = Event()
-    c1.type = EventType.PUSH
-    c2 = Event()
-    c2.id = 1
-    c2.type = EventType.PUSH
-    p1 = Event()
-    p1.type = EventType.PULL_REQUEST
-    p2 = Event()
-    p2.id = 1
-    p2.type = EventType.PULL_REQUEST
-    m.seen_events = set()
-    new_events = set()
-    assert m.new_commits(new_events) == set()
-    assert m.new_issues(new_events) == set()
-    assert m.new_pull_requests(new_events) == set()
-    m.seen_events = {i1, c1, p1}
-    new_events = {i1, c1, p1}
-    assert m.new_commits(new_events) == set()
-    assert m.new_issues(new_events) == set()
-    assert m.new_pull_requests(new_events) == set()
-    m.seen_events = {i1, c1, p1}
-    new_events = {i1, c1, p1, i2, c2, p2}
-    assert m.new_commits(new_events)
-    assert m.new_issues(new_events)
-    assert m.new_pull_requests(new_events)
