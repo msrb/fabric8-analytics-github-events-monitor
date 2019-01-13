@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-COVERAGE_THRESHOLD=40
+COVERAGE_THRESHOLD=80
 
 TERM=${TERM:-xterm}
 

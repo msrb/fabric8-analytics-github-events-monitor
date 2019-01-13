@@ -30,9 +30,8 @@ docker_login() {
 
 prep() {
     yum -y update
-    yum -y install epel-release
-    yum -y install git which python34-pip python34-devel python34-virtualenv docker gcc
-    systemctl start docker
+    yum -y install epel-release https://centos7.iuscommunity.org/ius-release.rpm
+    yum -y install git which python36u python36u-devel python36u-pip docker gcc make
 }
 
 build_image() {
