@@ -8,3 +8,6 @@ here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 ${here}/run-tests.sh
 
+build_image
+
+push_image
