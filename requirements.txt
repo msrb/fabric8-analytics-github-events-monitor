@@ -30,6 +30,7 @@ requests==2.20.1
 selinon==1.0.0
 six==1.11.0               # via w3lib
 tqdm==4.28.1              # via pyppeteer
+typing==3.6.6
 urllib3==1.24.1           # via pyppeteer, requests
 w3lib==1.19.0             # via requests-html
 websockets==7.0           # via pyppeteer
