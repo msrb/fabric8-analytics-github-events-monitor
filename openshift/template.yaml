@@ -1,0 +1,187 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: f8a-release-monitor
+metadata:
+  name: f8a-release-monitor
+  annotations:
+    description: f8a-release-monitor
+objects:
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      service: f8a-release-monitor
+    name: f8a-release-monitor
+  spec:
+    replicas: ${{REPLICAS}}
+    selector:
+      service: f8a-release-monitor
+    template:
+      metadata:
+        labels:
+          service: f8a-release-monitor
+      spec:
+        containers:
+        - env:
+          - name: DEPLOYMENT_PREFIX
+            valueFrom:
+              configMapKeyRef:
+                name: bayesian-config
+                key: deployment-prefix
+          - name: WORKER_ADMINISTRATION_REGION
+            value: "api"
+          - name: AWS_SQS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: aws
+                key: sqs-access-key-id
+          - name: AWS_SQS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: aws
+                key: sqs-secret-access-key
+          - name: AWS_S3_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+               name: aws
+               key: s3-access-key-id
+          - name: AWS_S3_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: aws
+                key: s3-secret-access-key
+          # this won't get used if running with SQS
+          - name: RABBITMQ_SERVICE_SERVICE_HOST
+            value: bayesian-broker
+          - name: PGBOUNCER_SERVICE_HOST
+            value: bayesian-pgbouncer
+          - name: POSTGRESQL_DATABASE
+            valueFrom:
+              secretKeyRef:
+                name: coreapi-postgres
+                key: database
+          - name: POSTGRESQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: coreapi-postgres
+                key: username
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: coreapi-postgres
+                key: password
+          - name: ENABLE_SCHEDULING
+            value: ${ENABLE_SCHEDULING}
+          - name: SLEEP_INTERVAL
+            value: ${SLEEP_INTERVAL}
+          - name: NPM_URL
+            value: ${NPM_URL}
+          - name: PYPI_URL
+            value: ${PYPI_URL}
+          - name: PROBE_FILE_LOCATION
+            value: ${PROBE_FILE_LOCATION}
+          - name: DEBUG
+            value: ${DEBUG}
+          image: "${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${IMAGE_TAG}"
+          name: f8a-release-monitor
+          livenessProbe:
+            exec:
+              command:
+              - cat
+              - /tmp/release_monitoring/liveness.txt
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 30
+          readinessProbe:
+            exec:
+              command:
+              - cat
+              - /tmp/release_monitoring/liveness.txt
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 30
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+        restartPolicy: Always
+    test: false
+    triggers:
+    - type: ConfigChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      service: f8a-release-monitor
+    name: f8a-release-monitor
+  spec:
+    ports:
+    - name: "35000"
+      port: 35000
+      protocol: TCP
+      targetPort: 35000
+    selector:
+      service: f8a-release-monitor
+
+parameters:
+- description: Docker registry where the image is
+  displayName: Docker registry
+  required: true
+  name: DOCKER_REGISTRY
+  value: "quay.io"
+
+- description: Variable which defines whether new analysis will be scheduled
+  displayName: Enable scheduling variable
+  required: true
+  name: ENABLE_SCHEDULING
+  value: "0"
+
+- description: Variable which defines time between requests for updates from registries
+  displayName: Sleep interval
+  name: SLEEP_INTERVAL
+  value: "10"
+
+- description: Variable which defines NPM registry url
+  displayName: NPM registry URL
+  name: NPM_URL
+  value: "https://registry.npmjs.org/"
+
+- description: Variable which defines PYPI registry url
+  displayName: PYPI registry URL
+  name: PYPI_URL
+  value: "https://pypi.org/"
+
+
+- description: Docker image to use
+  displayName: Docker image
+  required: true
+  name: DOCKER_IMAGE
+  value: "openshiftio/fabric8-analytics-f8a-release-monitor"
+
+- description: Image tag
+  displayName: Image tag
+  required: true
+  name: IMAGE_TAG
+  value: "latest"  # image-tag
+
+- description: Number of deployment replicas
+  displayName: Number of deployment replicas
+  required: true
+  name: REPLICAS
+  value: "1"
+
+- description: Liveness probe file location
+  displayName: Liveness probe file location
+  required: true
+  name: PROBE_FILE_LOCATION
+  value: "/tmp/release_monitoring/liveness.txt"
+
+- description: Variable which defines whether app is in debug mode
+  displayName: Enable debuging
+  required: true
+  name: DEBUG
+  value: "False"
