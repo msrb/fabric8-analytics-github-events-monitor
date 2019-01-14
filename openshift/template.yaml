@@ -1,26 +1,26 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: f8a-release-monitor
+  template: f8a-github-events-monitor
 metadata:
-  name: f8a-release-monitor
+  name: f8a-github-events-monitor
   annotations:
-    description: f8a-release-monitor
+    description: f8a-github-events-monitor
 objects:
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
     labels:
-      service: f8a-release-monitor
-    name: f8a-release-monitor
+      service: f8a-github-events-monitor
+    name: f8a-github-events-monitor
   spec:
     replicas: ${{REPLICAS}}
     selector:
-      service: f8a-release-monitor
+      service: f8a-github-events-monitor
     template:
       metadata:
         labels:
-          service: f8a-release-monitor
+          service: f8a-github-events-monitor
       spec:
         containers:
         - env:
@@ -71,36 +71,33 @@ objects:
               secretKeyRef:
                 name: coreapi-postgres
                 key: password
-          - name: ENABLE_SCHEDULING
-            value: ${ENABLE_SCHEDULING}
-          - name: SLEEP_INTERVAL
-            value: ${SLEEP_INTERVAL}
-          - name: NPM_URL
-            value: ${NPM_URL}
-          - name: PYPI_URL
-            value: ${PYPI_URL}
-          - name: PROBE_FILE_LOCATION
-            value: ${PROBE_FILE_LOCATION}
-          - name: DEBUG
-            value: ${DEBUG}
+          - name: GITHUB_TOKEN
+            value: ${GITHUB_TOKEN}
+          - name: SLEEP_PERIOD
+            value: ${SLEEP_PERIOD}
+          - name: WATCH_PACKAGES
+            value: ${WATCH_PACKAGES}
+          - name: LOGLEVEL
+            value: ${LOGLEVEL}
           image: "${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${IMAGE_TAG}"
-          name: f8a-release-monitor
-          livenessProbe:
-            exec:
-              command:
-              - cat
-              - /tmp/release_monitoring/liveness.txt
-            initialDelaySeconds: 30
-            periodSeconds: 60
-            timeoutSeconds: 30
-          readinessProbe:
-            exec:
-              command:
-              - cat
-              - /tmp/release_monitoring/liveness.txt
-            initialDelaySeconds: 30
-            periodSeconds: 60
-            timeoutSeconds: 30
+          name: f8a-github-events-monitor
+          # TODO: if we want this, we need to implement in the app
+          # livenessProbe:
+          #   exec:
+          #     command:
+          #     - cat
+          #     - /tmp/release_monitoring/liveness.txt
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 60
+          #   timeoutSeconds: 30
+          # readinessProbe:
+          #   exec:
+          #     command:
+          #     - cat
+          #     - /tmp/release_monitoring/liveness.txt
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 60
+          #   timeoutSeconds: 30
           resources:
             requests:
               memory: "128Mi"
@@ -116,8 +113,8 @@ objects:
   kind: Service
   metadata:
     labels:
-      service: f8a-release-monitor
-    name: f8a-release-monitor
+      service: f8a-github-events-monitor
+    name: f8a-github-events-monitor
   spec:
     ports:
     - name: "35000"
@@ -125,7 +122,7 @@ objects:
       protocol: TCP
       targetPort: 35000
     selector:
-      service: f8a-release-monitor
+      service: f8a-github-events-monitor
 
 parameters:
 - description: Docker registry where the image is
@@ -134,33 +131,38 @@ parameters:
   name: DOCKER_REGISTRY
   value: "quay.io"
 
-- description: Variable which defines whether new analysis will be scheduled
-  displayName: Enable scheduling variable
+          - name: GITHUB_TOKEN
+          - name: SLEEP_PERIOD
+          - name: WATCH_PACKAGES
+          - name: LOGLEVEL
+
+- description: Define Github token for increased API Rate Limit
+  displayName: Github API token
   required: true
-  name: ENABLE_SCHEDULING
-  value: "0"
+  name: GITHUB_TOKEN
+  value: ""
 
-- description: Variable which defines time between requests for updates from registries
-  displayName: Sleep interval
-  name: SLEEP_INTERVAL
-  value: "10"
+- description: Variable which defines the time between updates (in seconds)
+  displayName: Sleep period
+  name: SLEEP_PERIOD
+  value: "600"
 
-- description: Variable which defines NPM registry url
-  displayName: NPM registry URL
-  name: NPM_URL
-  value: "https://registry.npmjs.org/"
+- description: Golang packages which we want to monitor
+  displayName: Go packages to watch
+  name: WATCH_PACKAGES
+  value: "k8s.io/metrics"
 
-- description: Variable which defines PYPI registry url
-  displayName: PYPI registry URL
-  name: PYPI_URL
-  value: "https://pypi.org/"
+- description: Define level of verbosity
+  displayName: Logging verbosity
+  name: LOGLEVEL
+  value: "INFO"
 
 
 - description: Docker image to use
   displayName: Docker image
   required: true
   name: DOCKER_IMAGE
-  value: "openshiftio/fabric8-analytics-f8a-release-monitor"
+  value: "openshiftio/fabric8-analytics-f8a-github-events-monitor"
 
 - description: Image tag
   displayName: Image tag
@@ -174,14 +176,8 @@ parameters:
   name: REPLICAS
   value: "1"
 
-- description: Liveness probe file location
-  displayName: Liveness probe file location
-  required: true
-  name: PROBE_FILE_LOCATION
-  value: "/tmp/release_monitoring/liveness.txt"
-
-- description: Variable which defines whether app is in debug mode
-  displayName: Enable debuging
-  required: true
-  name: DEBUG
-  value: "False"
+# - description: Liveness probe file location
+#   displayName: Liveness probe file location
+#   required: true
+#   name: PROBE_FILE_LOCATION
+#   value: "/tmp/release_monitoring/liveness.txt"
