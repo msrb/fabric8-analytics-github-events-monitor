@@ -32,6 +32,7 @@ prep() {
     yum -y update
     yum -y install epel-release https://centos7.iuscommunity.org/ius-release.rpm
     yum -y install git which python36u python36u-devel python36u-pip docker gcc make
+    systemctl start docker
 }
 
 build_image() {
