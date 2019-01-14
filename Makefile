@@ -25,6 +25,7 @@ docker-run:
 
 docker-build:
 	docker build -t github-monitor .
+	docker tag github-monitor $(REGISTRY)/$(REPOSITORY):$(DEFAULT_TAG)
 
 coverage:
 	pytest --cov="ghmonitor/" --cov-report html:/tmp/cov_report -vv ghmonitor/
