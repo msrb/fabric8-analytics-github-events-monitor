@@ -50,6 +50,7 @@ class SelinonBackend(Backend):
     def notify(self, notification_string):
         """See parent class."""
         init_celery(result_backend=False)
+        # TODO: init selinon and move into a constructor
         run_flow(SELINON_FLOW_NAME, notification_string)
 
 
