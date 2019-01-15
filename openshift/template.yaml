@@ -131,11 +131,6 @@ parameters:
   name: DOCKER_REGISTRY
   value: "quay.io"
 
-          - name: GITHUB_TOKEN
-          - name: SLEEP_PERIOD
-          - name: WATCH_PACKAGES
-          - name: LOGLEVEL
-
 - description: Define Github token for increased API Rate Limit
   displayName: Github API token
   required: true
