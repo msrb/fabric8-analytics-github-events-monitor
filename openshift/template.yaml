@@ -41,19 +41,6 @@ objects:
               secretKeyRef:
                 name: aws
                 key: sqs-secret-access-key
-          - name: AWS_S3_ACCESS_KEY_ID
-            valueFrom:
-              secretKeyRef:
-               name: aws
-               key: s3-access-key-id
-          - name: AWS_S3_SECRET_ACCESS_KEY
-            valueFrom:
-              secretKeyRef:
-                name: aws
-                key: s3-secret-access-key
-          # this won't get used if running with SQS
-          - name: RABBITMQ_SERVICE_SERVICE_HOST
-            value: bayesian-broker
           - name: PGBOUNCER_SERVICE_HOST
             value: bayesian-pgbouncer
           - name: POSTGRESQL_DATABASE
@@ -72,32 +59,34 @@ objects:
                 name: coreapi-postgres
                 key: password
           - name: GITHUB_TOKEN
-            value: ${GITHUB_TOKEN}
+            valueFrom:
+              secretKeyRef:
+                name: worker
+                key: github-token
           - name: SLEEP_PERIOD
             value: ${SLEEP_PERIOD}
           - name: WATCH_PACKAGES
             value: ${WATCH_PACKAGES}
           - name: LOGLEVEL
             value: ${LOGLEVEL}
+          - name: BACKEND_CLASS
+            value: ${BACKEND_CLASS}
           image: "${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${IMAGE_TAG}"
           name: f8a-github-events-monitor
-          # TODO: if we want this, we need to implement in the app
-          # livenessProbe:
-          #   exec:
-          #     command:
-          #     - cat
-          #     - /tmp/release_monitoring/liveness.txt
-          #   initialDelaySeconds: 30
-          #   periodSeconds: 60
-          #   timeoutSeconds: 30
-          # readinessProbe:
-          #   exec:
-          #     command:
-          #     - cat
-          #     - /tmp/release_monitoring/liveness.txt
-          #   initialDelaySeconds: 30
-          #   periodSeconds: 60
-          #   timeoutSeconds: 30
+          livenessProbe:
+            exec:
+              command:
+              - "true"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 20
+          readinessProbe:
+            exec:
+              command:
+              - "true"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 20
           resources:
             requests:
               memory: "128Mi"
@@ -109,20 +98,6 @@ objects:
     test: false
     triggers:
     - type: ConfigChange
-- apiVersion: v1
-  kind: Service
-  metadata:
-    labels:
-      service: f8a-github-events-monitor
-    name: f8a-github-events-monitor
-  spec:
-    ports:
-    - name: "35000"
-      port: 35000
-      protocol: TCP
-      targetPort: 35000
-    selector:
-      service: f8a-github-events-monitor
 
 parameters:
 - description: Docker registry where the image is
@@ -131,18 +106,12 @@ parameters:
   name: DOCKER_REGISTRY
   value: "quay.io"
 
-- description: Define Github token for increased API Rate Limit
-  displayName: Github API token
-  required: true
-  name: GITHUB_TOKEN
-  value: ""
-
 - description: Variable which defines the time between updates (in seconds)
   displayName: Sleep period
   name: SLEEP_PERIOD
   value: "600"
 
-- description: Golang packages which we want to monitor
+- description: A space-separated list of Golang packages that we want to monitor
   displayName: Go packages to watch
   name: WATCH_PACKAGES
   value: "k8s.io/metrics"
@@ -152,18 +121,22 @@ parameters:
   name: LOGLEVEL
   value: "INFO"
 
+- description: Backend class name; either "LoggerBackend" or "SelinonBackend"
+  displayName: Backend class name
+  name: BACKEND_CLASS
+  value: "LoggerBackend"
 
 - description: Docker image to use
   displayName: Docker image
   required: true
   name: DOCKER_IMAGE
-  value: "openshiftio/fabric8-analytics-f8a-github-events-monitor"
+  value: "openshiftio/fabric8-analytics-github-events-monitor"
 
 - description: Image tag
   displayName: Image tag
   required: true
   name: IMAGE_TAG
-  value: "latest"  # image-tag
+  value: "latest"
 
 - description: Number of deployment replicas
   displayName: Number of deployment replicas
@@ -171,8 +144,3 @@ parameters:
   name: REPLICAS
   value: "1"
 
-# - description: Liveness probe file location
-#   displayName: Liveness probe file location
-#   required: true
-#   name: PROBE_FILE_LOCATION
-#   value: "/tmp/release_monitoring/liveness.txt"
