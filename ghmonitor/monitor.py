@@ -4,6 +4,7 @@ import logging
 import json
 import requests
 import os
+import random
 
 from ghmonitor.models import Event, EventType
 
@@ -21,8 +22,8 @@ def get_auth_header():
 
     The dictionary contains authorization token for Github API.
     """
-    token = os.environ.get('GITHUB_TOKEN')
-    if token is not None:
+    token = random.choice(os.environ.get('GITHUB_TOKEN', '').split(','))
+    if token:
         return {'Authorization': 'token ' + token}
     else:
         return None
