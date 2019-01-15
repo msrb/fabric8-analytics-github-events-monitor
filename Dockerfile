@@ -11,7 +11,7 @@ RUN yum install -y epel-release https://centos7.iuscommunity.org/ius-release.rpm
 
 # Cache dependencies
 COPY requirements.txt /tmp/
-RUN python3.6 -m pip install -r /tmp/requirements.txt
+RUN python3.6 -m pip install --upgrade pip>=10.0.0 && python3.6 -m pip install -r /tmp/requirements.txt
 
 RUN python3.6 -m pip install git+https://github.com/fabric8-analytics/fabric8-analytics-worker.git@${F8A_WORKER_VERSION}
 # Worker depends on fabric8-analytics-utils
