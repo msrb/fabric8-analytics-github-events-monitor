@@ -6,7 +6,7 @@ import os
 from time import sleep
 
 from ghmonitor.monitor import get_auth_header
-from ghmonitor.backend import LoggerBackend
+from ghmonitor.backend import get_backend_by_name
 from ghmonitor.utils import create_monitors, process_new_events
 
 
@@ -30,8 +30,7 @@ if __name__ == "__main__":
         logger.info(str(m))
 
     # Set up backend for notifications
-    # TODO: use selinon instead of the logger
-    backend = LoggerBackend()
+    backend = get_backend_by_name(os.environ.get('BACKEND_CLASS', 'LoggerBackend'))
 
     while True:
         # Run the monitor forever

@@ -5,9 +5,28 @@ import json
 
 from abc import ABC, abstractmethod
 from selinon import run_flow
-from f8a_worker.setup_celery import init_celery
+from f8a_worker.setup_celery import init_celery, init_selinon
 
 logger = logging.getLogger('Monitor')
+
+
+class InvalidBackendClass(Exception):
+    """Exception for invalid backend class name."""
+
+
+def get_backend_by_name(cls_str):
+    # type: (str) -> ghmonitor.Backend
+    """
+    Instantiate and return backend object.
+
+    :param cls_str: str, backend class name
+    :return: instance of the selected backend class
+    :raise: InvalidBackendClass if backend class doesn't exist
+    """
+    try:
+        return globals()[cls_str]()
+    except KeyError:
+        raise InvalidBackendClass('Invalid backend class name: {cls}'.format(cls=cls_str))
 
 
 class Backend(ABC):
@@ -47,11 +66,15 @@ SELINON_FLOW_NAME = 'golangCVEPredictionsFlow'
 class SelinonBackend(Backend):
     """Production backend that is connected to Selinon(Celery(SQS@AWS))."""
 
+    def __init__(self):
+        """Create this backend."""
+        super().__init__()
+        init_celery(result_backend=False)
+        init_selinon()
+
     def notify(self, notification_string):
         """See parent class."""
-        init_celery(result_backend=False)
-        # TODO: init selinon and move into a constructor
-        run_flow(SELINON_FLOW_NAME, notification_string)
+        run_flow(SELINON_FLOW_NAME, json.loads(notification_string))
 
 
 def create_pr_notification(package, repository, id):
