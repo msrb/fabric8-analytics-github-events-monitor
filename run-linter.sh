@@ -1,6 +1,6 @@
 #!/bin/bash
 
-directories="ghmonitor"
+directories="ghmonitor tests"
 separate_files="run.py"
 
 pass=0
