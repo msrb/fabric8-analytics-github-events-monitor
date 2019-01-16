@@ -9,7 +9,14 @@ import random
 from ghmonitor.models import Event, EventType
 
 # for type hints:
-from typing import List, Set, Union, Callable, Dict, Tuple # pylint:disable=W0611
+from typing import List, Set, Union, Callable, Dict, Tuple
+
+assert List
+assert Set
+assert Union
+assert Callable
+assert Dict
+assert Tuple
 
 logger = logging.getLogger('Monitor')
 auth_header = None

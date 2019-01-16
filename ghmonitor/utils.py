@@ -10,6 +10,9 @@ from ghmonitor.monitor import RepositoryMonitor
 from ghmonitor.backend import Backend
 from typing import List
 
+assert Backend
+assert List
+
 
 def create_monitors():
     # type: () -> List[RepositoryMonitor]
