@@ -1,3 +1,5 @@
+"""Tests for the monitor module."""
+
 import json
 import os
 
@@ -69,7 +71,8 @@ GITHUB_GET_REPOS_RESPONSE = """
   "issues_url": "https://api.github.com/repos/rust-lang/rust/issues{/number}",
   "pulls_url": "https://api.github.com/repos/rust-lang/rust/pulls{/number}",
   "milestones_url": "https://api.github.com/repos/rust-lang/rust/milestones{/number}",
-  "notifications_url": "https://api.github.com/repos/rust-lang/rust/notifications{?since,all,participating}",
+  "notifications_url":
+  "https://api.github.com/repos/rust-lang/rust/notifications{?since,all,participating}",
   "labels_url": "https://api.github.com/repos/rust-lang/rust/labels{/name}",
   "releases_url": "https://api.github.com/repos/rust-lang/rust/releases{/id}",
   "deployments_url": "https://api.github.com/repos/rust-lang/rust/deployments",
@@ -168,7 +171,8 @@ GITHUB_GET_REPOS_RESPONSE_KUBERNETES = """
   "url": "https://api.github.com/repos/kubernetes/metrics",
   "forks_url": "https://api.github.com/repos/kubernetes/metrics/forks",
   "keys_url": "https://api.github.com/repos/kubernetes/metrics/keys{/key_id}",
-  "collaborators_url": "https://api.github.com/repos/kubernetes/metrics/collaborators{/collaborator}",
+  "collaborators_url":
+  "https://api.github.com/repos/kubernetes/metrics/collaborators{/collaborator}",
   "teams_url": "https://api.github.com/repos/kubernetes/metrics/teams",
   "hooks_url": "https://api.github.com/repos/kubernetes/metrics/hooks",
   "issue_events_url": "https://api.github.com/repos/kubernetes/metrics/issues/events{/number}",
@@ -198,7 +202,8 @@ GITHUB_GET_REPOS_RESPONSE_KUBERNETES = """
   "issues_url": "https://api.github.com/repos/kubernetes/metrics/issues{/number}",
   "pulls_url": "https://api.github.com/repos/kubernetes/metrics/pulls{/number}",
   "milestones_url": "https://api.github.com/repos/kubernetes/metrics/milestones{/number}",
-  "notifications_url": "https://api.github.com/repos/kubernetes/metrics/notifications{?since,all,participating}",
+  "notifications_url":
+  "https://api.github.com/repos/kubernetes/metrics/notifications{?since,all,participating}",
   "labels_url": "https://api.github.com/repos/kubernetes/metrics/labels{/name}",
   "releases_url": "https://api.github.com/repos/kubernetes/metrics/releases{/id}",
   "deployments_url": "https://api.github.com/repos/kubernetes/metrics/deployments",
