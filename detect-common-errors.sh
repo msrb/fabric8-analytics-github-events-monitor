@@ -28,7 +28,7 @@ function prepare_venv() {
 
     printf "%sOK%s\n" "${GREEN}" "${NORMAL}" >&2
 
-    ${PYTHON} -m venv "venv" && source venv/bin/activate && pip install pyflakes
+    ${PYTHON} -m venv "venv" && source venv/bin/activate && python -m pip install pyflakes
 }
 
 
@@ -37,7 +37,7 @@ function check_files() {
     for source in $1
     do
         echo "$source"
-        pyflakes "$source"
+        python -m pyflakes "$source"
         if [ $? -eq 0 ]
         then
             echo "    Pass"
