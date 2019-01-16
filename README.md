@@ -23,3 +23,4 @@ monitor.py:    repos = os.environ.get('WATCH_REPOS', '')
 monitor.py:    LOGLEVEL = os.environ.get('LOGLEVEL', 'WARNING').upper()
 monitor.py:    SLEEP_PERIOD = float(os.environ.get('SLEEP_PERIOD', 30))
 ```
+
