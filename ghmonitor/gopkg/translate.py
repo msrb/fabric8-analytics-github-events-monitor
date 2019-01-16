@@ -8,6 +8,8 @@ GITHUB_REPO_RE = re.compile(r"github.com/(?P<user>[a-zA-Z0-9][ A-Za-z0-9_-]*)"
 
 from typing import Union
 
+assert Union
+
 
 def get_repo_from_random_urn(urn):
     # type: (str) -> Union[str, None]
