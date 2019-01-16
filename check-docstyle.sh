@@ -28,7 +28,7 @@ function prepare_venv() {
 
     printf "%sOK%s\n" "${GREEN}" "${NORMAL}" >&2
 
-    ${PYTHON} -m venv "venv" && source venv/bin/activate && pip install pydocstyle >&2
+    ${PYTHON} -m venv "venv" && source venv/bin/activate && python -m pip install pydocstyle >&2
 }
 
 # run the pydocstyle for all files that are provided in $1
@@ -36,7 +36,7 @@ function check_files() {
     for source in $1
     do
         echo "$source"
-        pydocstyle --count "$source"
+        python -m pydocstyle --count "$source"
         if [ $? -eq 0 ]
         then
             echo "    Pass"
