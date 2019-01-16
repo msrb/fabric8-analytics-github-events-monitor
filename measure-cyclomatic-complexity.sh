@@ -16,13 +16,13 @@ function prepare_venv() {
 
     printf "%sOK%s\n" "${GREEN}" "${NORMAL}" >&2
 
-    ${PYTHON} -m venv "venv" && source venv/bin/activate && pip install radon >&2
+    ${PYTHON} -m venv "venv" && source venv/bin/activate && python -m pip install radon >&2
 }
 
 
 [ "$NOVENV" == "1" ] || prepare_venv || exit 1
 
-radon cc -s -a -i venv .
+python -m radon cc -s -a -i venv .
 
 if [[ "$1" == "--fail-on-error" ]]
 then

@@ -29,7 +29,7 @@ function prepare_venv() {
 
     printf "%sOK%s\n" "${GREEN}" "${NORMAL}" >&2
 
-    ${PYTHON} -m venv "venv" && source venv/bin/activate && pip install pycodestyle >&2
+    ${PYTHON} -m venv "venv" && source venv/bin/activate && python -m pip install pycodestyle >&2
 }
 
 echo "----------------------------------------------------"
@@ -48,7 +48,7 @@ do
     for source in $files
     do
         echo "$source"
-        pycodestyle "$source"
+        python -m pycodestyle "$source"
         if [ $? -eq 0 ]
         then
             echo "    Pass"
