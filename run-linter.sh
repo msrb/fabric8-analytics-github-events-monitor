@@ -71,7 +71,7 @@ echo "----------------------------------------------------"
 for source in $separate_files
 do
     echo "$source"
-    pycodestyle "$source"
+    python -m pycodestyle "$source"
     if [ $? -eq 0 ]
     then
         echo "    Pass"
